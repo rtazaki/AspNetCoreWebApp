@@ -1,3 +1,5 @@
+using AspNetCoreWebApp.Devices;
+using AspNetCoreWebApp.States;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,6 +11,8 @@ namespace AspNetCoreWebApp
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvcCore();
+            services.AddSingleton<IState, State>();
+            services.AddSingleton<IDevice, Device>();
         }
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
