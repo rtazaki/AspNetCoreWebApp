@@ -11,7 +11,7 @@ namespace AspNetCoreWebApp
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvcCore();
-            services.AddSingleton<IState, State>();
+            services.AddSingleton<State>();
             services.AddSingleton<IDevice, Device>();
         }
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

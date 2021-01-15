@@ -8,9 +8,9 @@ namespace AspNetCoreWebApp.Controllers
     [Route("api/[controller]")]
     public class HomeController : ControllerBase
     {
-        private readonly IState _state;
+        private readonly State _state;
         private readonly IDevice _device;
-        public HomeController(IState state, IDevice device)
+        public HomeController(State state, IDevice device)
         {
             _state = state;
             _device = device;
@@ -19,49 +19,43 @@ namespace AspNetCoreWebApp.Controllers
         [HttpGet, Route("v1/index")]
         public IActionResult IndexGet()
         {
-            if (_state.ProtectedActionSemaphore.CurrentCount < 1)
+            if (_state.asyncLock.IsLock())
             {
                 return StatusCode(400, "Get Waiting");
             }
             var result = new Requests.Response.Base { Name = "Get" };
-            _state.ProtectedActionSemaphore.Wait();
-            try
+            using (_state.asyncLock.Lock())
             {
                 result.DeviceCode = _device.HeavyWait();
             }
-            finally { _state.ProtectedActionSemaphore.Release(); }
             return StatusCode(200, result);
         }
 
         [HttpPost, Route("v1/index")]
         public async Task<IActionResult> IndexPostAsync()
         {
-            if (_state.ProtectedActionSemaphore.CurrentCount < 1)
+            if (_state.asyncLock.IsLock())
             {
                 return StatusCode(400, "Post Waiting");
             }
             var result = new Requests.Response.Base { Name = "Post" };
-            await _state.ProtectedActionSemaphore.WaitAsync();
-            try
+            using(await _state.asyncLock.LockAsync())
             {
                 result.DeviceCode = await _device.HeavyWaitAsync();
             }
-            finally { _state.ProtectedActionSemaphore.Release(); }
             return StatusCode(200, result);
         }
 
         [HttpPut, Route("v1/index")]
         public IActionResult Test()
         {
-            if (_state.ProtectedActionSemaphore.CurrentCount < 1)
+            if (_state.asyncLock.IsLock())
             {
                 return StatusCode(400, "Put Waiting");
             }
-            _state.ProtectedActionSemaphore.Wait();
-            try
+            using(_state.asyncLock.Lock())
             {
             }
-            finally { _state.ProtectedActionSemaphore.Release(); }
             return StatusCode(200, "test");
         }
     }

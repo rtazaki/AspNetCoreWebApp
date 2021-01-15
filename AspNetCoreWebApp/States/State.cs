@@ -2,9 +2,8 @@ using System.Threading;
 
 namespace AspNetCoreWebApp.States
 {
-    public class State : IState
+    public class State
     {
-        private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
-        public SemaphoreSlim ProtectedActionSemaphore { get => _semaphore; }
+        public readonly AsyncLock asyncLock = new AsyncLock();
     }
 }
